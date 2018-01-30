@@ -1,0 +1,15 @@
+body{
+    text-align: center;
+}
+
+table{
+    width: 100%;
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+
+input[type="submit"]{
+    cursor:pointer;
+   }
