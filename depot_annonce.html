@@ -35,16 +35,73 @@
 
          function displayAdvertisement() {
              db.collection('emplois').find({}).limit(1000).execute().then(docs => {
-                 var html = docs.map(c => "<div>" + c.comment + "</div>").join("");
+                 var html = docs.map(c => "<div>" + c.intitule + " | "  + c.datepublication+ " | "+ c.contenu + " | "+ c.tags + " | "+ c.entreprise + " | "+ c.typeentreprise +"</div><button id=\"id_annonce1\" value="+c.intitule+" onClick=\"removeAdvertisement()\" type=\"submit\">Supprimer</button><button type=\"submit\" id=\"id_annonce2\" onClick=\"preupdateAnnonce('"+c.guid+"')\" value="+c.siret+">Mettre à jour</button>").join("");
                  document.getElementById("advertisements").innerHTML = html;
              });
          }
 
+
+         function guid() {
+            function s4() {
+              return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+            }
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+              s4() + '-' + s4() + s4() + s4();
+          }
+
          function addAdvertisement() {
-             var foo = document.getElementById("new_enterprise");
-             db.collection("emplois").insertOne({owner_id : client.authedId(), comment: foo.value}).then(displayAdvertisement);
+             var foo = document.getElementById("new_annonce");
+             var foo_datepublication = document.getElementById("new_datepublication");
+             var foo_contenu = document.getElementById("new_contenu");
+             var foo_tags = document.getElementById("new_tag");
+             var foo_entreprise = document.getElementById("new_entreprise");
+             var foo_typeentreprise = document.getElementById("new_typeentreprise");
+
+
+             db.collection("emplois").insertOne({owner_id : client.authedId(),guid: guid(), intitule: foo.value, datepublication : foo_datepublication.value, contenu : foo_contenu.value, tags : foo_tags.value, entreprise : foo_entreprise.value, typeentreprise : foo_typeentreprise.value}).then(displayAdvertisement);
              foo.value = "";
          }
+
+          function removeAdvertisement() {
+            var annonceNameToDelete = document.getElementById("id_annonce").value;
+            console.log(annonceNameToDelete);
+             try {
+               db.collection("emplois").deleteOne( {guid : guid} );
+            }
+            catch (e) {
+               console.log(e);
+            }
+         }
+
+          function hide(){
+            document.getElementById("up_annonce").style.visibility = "hidden";
+          }
+
+          function preupdateAnnonce(guid){
+            un_guid = guid;
+            document.getElementById("up_annonce").style.visibility = "visible";
+          }
+
+          function updateAdvertisement(){
+             var foo = document.getElementById("id_annonce").value;
+             var foo_datepublication = document.getElementById("id_datepublication").value;
+             var foo_contenu = document.getElementById("id_contenu").value;
+             var foo_tags = document.getElementById("id_tag").value;
+             var foo_entreprise = document.getElementById("id_entreprise").value;
+             var foo_typeentreprise = document.getElementById("id_typeentreprise").value;
+
+             try{
+              db.collection("emplois").updateOne({guid : un_guid}, {$set: {intitule: foo, datepublication: foo_datepublication, contenu : foo_contenu, tags : foo_tags, entreprise : foo_entreprise,typeentreprise : foo_typeentreprise}});
+             }
+             catch (e){
+              console.log(e);
+             }
+             displayAdvertisementOnLoad();
+          }
+
+
          </script>
 </head>
 <body onload="displayAdvertisementOnLoad()">
@@ -53,12 +110,31 @@
         <br/>
         <div id="advertisements"></div>
         <hr>
-        Ajouter une annonce: <input id="new_enterprise"><input type="submit" onClick="addAdvertisement()">
+        Ajouter une annonce: <br><input id="new_annonce" placeholder="annonce">
+        <input id="new_datepublication" placeholder="Date de publication"><br><br>
+        <input id="new_contenu" placeholder="Contenu">
+        <input id="new_tag" placeholder="Tag"><br><br>
+        <input id="new_entreprise" placeholder="Entreprise liée">
+        <input id="new_typeentreprise" placeholder="Type d'entreprise"><br><br>
+
+        <input type="submit" onClick="addAdvertisement()"><br><br>
 
 
+
+   <div id="up_annonce" style="visibility : hidden">
+            <h3>Mise à jour de l'entreprise : </h3>
+            <input id="id_annonce" placeholder="Annonce">
+            <input id="id_datepublication" placeholder="Date de Publication">
+            <input id="id_contenu" placeholder="Contenu">
+            <input id="id_tag" placeholder="Tag">
+            <input id="id_entreprise" placeholder="Entreprise">
+            <input id="id_typeentreprise" placeholder="Type d'Entreprise">                        
+            <button type="submit" onClick="hide()">Masquer</button>
+            <input type="submit" onClick="updateAdvertisement()">
+ </div>
     <!-- <table>
-        <tr>
           <th>Intitulé</th>
+        <tr>
           <th>Date de publication</th> 
           <th>Contenu</th>
           <th>Tags associés</th>
