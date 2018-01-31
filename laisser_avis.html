@@ -6,13 +6,59 @@
     <title>JobLander - Avis</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
-    <script src="main.js"></script>
+    <script src="https://s3.amazonaws.com/stitch-sdks/js/library/v3/stable/stitch.min.js"></script>
+    <script>
+        let client;
+        let db;
+        const clientPromise = stitch.StitchClientFactory.create('joblander-eqqgd');  //id de la base 
+
+      clientPromise.then(client => {
+        const db = client.service('mongodb', 'mongodb-atlas').db('JobLander');
+        client.login().then(()=>
+          db.collection('avis').find({owner_id: client.authedId()}).limit(100).execute()
+        ).then(docs => {
+          console.log("Found docs", docs)
+          console.log("[MongoDB Stitch] Connected to Stitch")
+        }).catch(err => {
+          console.error(err)
+        });
+      });
+
+
+         function displayViewOnLoad() {
+             clientPromise.then(stitchClient => {
+                 client = stitchClient;
+                 db = client.service('mongodb', 'mongodb-atlas').db('JobLander');
+                 return client.login().then(displayView)
+             });
+         }
+
+         function displayView() {
+             db.collection('avis').find({}).limit(1000).execute().then(docs => {
+                 var html = docs.map(c => "<div>" + c.comment + "</div>").join("");
+                 document.getElementById("view").innerHTML = html;
+             });
+         }
+
+         function addView() {
+             var foo = document.getElementById("new_enterprise");
+             db.collection("avis").insertOne({owner_id : client.authedId(), comment: foo.value}).then(displayView);
+             foo.value = "";
+         }
+         </script>
 </head>
-<body>
+
+ <body onload="displayViewOnLoad()">
+
         <h1>JobLander</h1>  
         <h2>Avis</h2>
-        <br/>
-    <table>
+
+            <br/>
+                <div id="view"></div>
+                <hr>
+                Ajouter un avis: <input id="new_enterprise"><input type="submit" onClick="addView()">
+
+    <!-- <table>
         <tr>
           <th>Note</th>
           <th>Titre</th> 
@@ -29,7 +75,7 @@
           <th>Pas de croissants le vendredi matin.</th>
           <th>22 février 1996</th>
         </tr>
-      </table>
+      </table> -->
 <br>
 <form action="depot_annonce.html" method="get">
         <input type="submit" value="< Annonces >" name="Submit" id="frm3_submit" />

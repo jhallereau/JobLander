@@ -6,13 +6,55 @@
     <title>JobLander - Entreprises</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
-    <script src="main.js"></script>
+    <script src="https://s3.amazonaws.com/stitch-sdks/js/library/v3/stable/stitch.min.js"></script>
+    <script>
+        let client;
+        let db;
+        const clientPromise = stitch.StitchClientFactory.create('joblander-eqqgd');  //id de la base 
+
+      clientPromise.then(client => {
+        const db = client.service('mongodb', 'mongodb-atlas').db('JobLander');
+        client.login().then(()=>
+          db.collection('entreprises').find({owner_id: client.authedId()}).limit(100).execute()
+        ).then(docs => {
+          console.log("Found docs", docs)
+          console.log("[MongoDB Stitch] Connected to Stitch")
+        }).catch(err => {
+          console.error(err)
+        });
+      });
+
+
+         function displayEnterprisesOnLoad() {
+             clientPromise.then(stitchClient => {
+                 client = stitchClient;
+                 db = client.service('mongodb', 'mongodb-atlas').db('JobLander');
+                 return client.login().then(displayEnterprises)
+             });
+         }
+
+         function displayEnterprises() {
+             db.collection('entreprises').find({}).limit(1000).execute().then(docs => {
+                 var html = docs.map(c => "<div>" + c.comment + "</div>").join("");
+                 document.getElementById("enterprise").innerHTML = html;
+             });
+         }
+
+         function addEnterprises() {
+             var foo = document.getElementById("new_enterprise");
+             db.collection("entreprises").insertOne({owner_id : client.authedId(), comment: foo.value}).then(displayEnterprises);
+             foo.value = "";
+         }
+         </script>
 </head>
-<body>
+<body onload="displayEnterprisesOnLoad()">
         <h1>JobLander</h1>  
         <h2>Entreprises</h2>
         <br/>
-    <table>
+            <div id="enterprise"></div>
+            <hr>
+            Ajouter une entreprise : <input id="new_enterprise"><input type="submit" onClick="addEnterprises()">
+    <!-- <table>
         <tr>
           <th>Nom</th>
           <th>SIRET</th> 
@@ -25,8 +67,7 @@
           <td>86 Redmont Av, California, USA.</td>
           <td>355,3344  /  937,7839</td>
         </tr>
-      </table>
-
+      </table> -->
       <br>
       <form action="laisser_avis.html" method="get">
         <input type="submit" value="< Avis" name="Submit" id="frm1_submit" />

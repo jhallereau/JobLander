@@ -6,13 +6,57 @@
     <title>JobLander - Annonces</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
-    <script src="main.js"></script>
+    <script src="https://s3.amazonaws.com/stitch-sdks/js/library/v3/stable/stitch.min.js"></script>
+    <script>
+        let client;
+        let db;
+        const clientPromise = stitch.StitchClientFactory.create('joblander-eqqgd');  //id de la base 
+
+      clientPromise.then(client => {
+        const db = client.service('mongodb', 'mongodb-atlas').db('JobLander');
+        client.login().then(()=>
+          db.collection('emplois').find({owner_id: client.authedId()}).limit(100).execute()
+        ).then(docs => {
+          console.log("Found docs", docs)
+          console.log("[MongoDB Stitch] Connected to Stitch")
+        }).catch(err => {
+          console.error(err)
+        });
+      });
+
+
+         function displayAdvertisementOnLoad() {
+             clientPromise.then(stitchClient => {
+                 client = stitchClient;
+                 db = client.service('mongodb', 'mongodb-atlas').db('JobLander');
+                 return client.login().then(displayAdvertisement)
+             });
+         }
+
+         function displayAdvertisement() {
+             db.collection('emplois').find({}).limit(1000).execute().then(docs => {
+                 var html = docs.map(c => "<div>" + c.comment + "</div>").join("");
+                 document.getElementById("advertisements").innerHTML = html;
+             });
+         }
+
+         function addAdvertisement() {
+             var foo = document.getElementById("new_enterprise");
+             db.collection("emplois").insertOne({owner_id : client.authedId(), comment: foo.value}).then(displayAdvertisement);
+             foo.value = "";
+         }
+         </script>
 </head>
-<body>
+<body onload="displayAdvertisementOnLoad()">
         <h1>JobLander</h1>  
         <h2>Annonces</h2>
         <br/>
-    <table>
+        <div id="advertisements"></div>
+        <hr>
+        Ajouter une annonce: <input id="new_enterprise"><input type="submit" onClick="addAdvertisement()">
+
+
+    <!-- <table>
         <tr>
           <th>Intitulé</th>
           <th>Date de publication</th> 
@@ -29,7 +73,7 @@
           <th>Microsoft</th>
           <th>CDI</th>
         </tr>
-      </table>
+      </table> -->
 
       <br>
       <form action="laisser_avis.html" method="get">
