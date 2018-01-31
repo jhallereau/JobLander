@@ -8,21 +8,23 @@
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
     <script src="https://s3.amazonaws.com/stitch-sdks/js/library/v3/stable/stitch.min.js"></script>
     <script>
+        var enterpriseNameToUpdate;
+        var un_guid;
         let client;
         let db;
         const clientPromise = stitch.StitchClientFactory.create('joblander-eqqgd');  //id de la base 
-
-      clientPromise.then(client => {
-        const db = client.service('mongodb', 'mongodb-atlas').db('JobLander');
-        client.login().then(()=>
-          db.collection('entreprises').find({owner_id: client.authedId()}).limit(100).execute()
-        ).then(docs => {
-          console.log("Found docs", docs)
-          console.log("[MongoDB Stitch] Connected to Stitch")
-        }).catch(err => {
-          console.error(err)
+      
+        clientPromise.then(client => {
+          const db = client.service('mongodb', 'mongodb-atlas').db('JobLander');
+          client.login().then(()=>
+            db.collection('entreprises').find({owner_id: client.authedId()}).limit(100).execute()
+          ).then(docs => {
+            console.log("Found docs", docs)
+            console.log("[MongoDB Stitch] Connected to Stitch")
+          }).catch(err => {
+            console.error(err)
+          });
         });
-      });
 
 
          function displayEnterprisesOnLoad() {
@@ -35,16 +37,68 @@
 
          function displayEnterprises() {
              db.collection('entreprises').find({}).limit(1000).execute().then(docs => {
-                 var html = docs.map(c => "<div>" + c.comment + "</div>").join("");
+                 var html = docs.map(c => "<div>" + c.nom +" | "+ c.adresse +" | "+ c.siret +" | "+ c.gps+"<button type=\"submit\" id=\"enterprise_del\" onClick=\"delEnterprise('"+c.guid+"')\" value="+c.guid+">Supprimer</button><button type=\"submit\" id=\"enterprise_update\" onClick=\"preupdateEnterprise('"+c.guid+"')\" value="+c.siret+">Mettre à jour</button></div>").join("");
                  document.getElementById("enterprise").innerHTML = html;
+                console.log(html);
              });
          }
 
+         function guid() {
+            function s4() {
+              return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+            }
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+              s4() + '-' + s4() + s4() + s4();
+          }
+
          function addEnterprises() {
-             var foo = document.getElementById("new_enterprise");
-             db.collection("entreprises").insertOne({owner_id : client.authedId(), comment: foo.value}).then(displayEnterprises);
+             var foo = document.getElementById("name");
+             var foo_siret = document.getElementById("siret");
+             var foo_adress = document.getElementById("addresse");
+             var foo_gps = document.getElementById("gps");
+             db.collection("entreprises").insertOne({owner_id : client.authedId(), guid: guid(), nom: foo.value, siret: foo_siret.value, adresse: foo_adress.value, gps: foo_gps.value}).then(displayEnterprises);
              foo.value = "";
+             foo_siret.value = "";
+             foo_adress.value = "";
+             foo_gps.value = "";
          }
+
+         function delEnterprise(guid){
+
+            try {
+                db.collection("entreprises").deleteOne( {guid : guid} );
+             } 
+             catch (e) {
+                console.log(e);
+             }
+          }
+
+          function hide(){
+            document.getElementById("up_enterprise").style.visibility = "hidden";
+          }
+
+          function preupdateEnterprise(guid){
+            un_guid = guid;
+            document.getElementById("up_enterprise").style.visibility = "visible";
+          }
+
+          function updateEnterprise(){
+             var foo_up = document.getElementById("name_up").value;
+             var foo_siret_up = document.getElementById("siret_up").value;
+             var foo_adress_up = document.getElementById("addresse_up").value;
+             var foo_gps_up = document.getElementById("gps_up").value;
+
+             try{
+              db.collection("entreprises").updateOne({guid : un_guid}, {$set: {nom: foo_up, siret: foo_siret_up, adresse : foo_adress_up,gps : foo_gps_up}});
+             }
+             catch (e){
+              console.log(e);
+             }
+             displayEnterprisesOnLoad();
+          }
+         
          </script>
 </head>
 <body onload="displayEnterprisesOnLoad()">
@@ -53,7 +107,22 @@
         <br/>
             <div id="enterprise"></div>
             <hr>
-            Ajouter une entreprise : <input id="new_enterprise"><input type="submit" onClick="addEnterprises()">
+            Ajouter une entreprise : 
+            <input id="name" placeholder="Nom de l'entreprise">
+            <input id="addresse" placeholder="Adresse">
+            <input id="siret" placeholder="SIRET">
+            <input id="gps" placeholder="Position GPS">
+            <input type="submit" onClick="addEnterprises()">
+
+<div id="up_enterprise" style="visibility : hidden">
+            <h3>Mise à jour de l'entreprise : </h3>
+            <input id="name_up" placeholder="Nom de l'entreprise">
+            <input id="addresse_up" placeholder="Adresse">
+            <input id="siret_up" placeholder="SIRET">
+            <input id="gps_up" placeholder="Position GPS">
+            <button type="submit" onClick="hide()">Masquer</button>
+            <input type="submit" onClick="updateEnterprise()">
+ </div>
     <!-- <table>
         <tr>
           <th>Nom</th>
