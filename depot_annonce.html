@@ -111,24 +111,60 @@
         <div id="advertisements"></div>
         <hr>
         Ajouter une annonce: <br><input id="new_annonce" placeholder="annonce">
-        <input id="new_datepublication" placeholder="Date de publication"><br><br>
+        <input id="new_datepublication" type="Date"><br><br>
         <input id="new_contenu" placeholder="Contenu">
         <input id="new_tag" placeholder="Tag"><br><br>
-        <input id="new_entreprise" placeholder="Entreprise liée">
-        <input id="new_typeentreprise" placeholder="Type d'entreprise"><br><br>
+        <select id="new_entreprise" name="entreprise">
+    		<option value="IBM">IBM</option>
+   			<option value="Apple">Apple</option>
+    		<option value="Microsoft">Microsoft</option>
+    		<option value="Capgemini">Capgemini</option>
+    		<option value="Orange">Orange</option>
+    		<option value="SFR">SFR</option>
+    		<option value="Bouygues Telecom">Bouygues Telecom</option>
+    		<option value="Free">Free</option>
+    		<option value="SFR">SFR</option>    		
+  		</select>
+
+        <select id="new_typeentreprise" name="typeentreprise">
+    		<option value="Stage">Stage</option>
+   			<option value="Apprentissage/Alternance">Apprentissage/Alternance</option>
+    		<option value="CDD">CDD</option>
+    		<option value="CDI">CDI</option>    		
+    		<option value="Freelance/Indépendant">Freelance/Indépendant</option>
+    		<option value="Intérim">Intérim</option>    		
+  		</select><br><br>
 
         <input type="submit" onClick="addAdvertisement()"><br><br>
 
 
 
-   <div id="up_annonce" style="visibility : hidden">
+  		 <div id="up_annonce" style="visibility : hidden">
             <h3>Mise à jour de l'entreprise : </h3>
             <input id="id_annonce" placeholder="Annonce">
-            <input id="id_datepublication" placeholder="Date de Publication">
+            <input id="id_datepublication" type="Date">
             <input id="id_contenu" placeholder="Contenu">
             <input id="id_tag" placeholder="Tag">
-            <input id="id_entreprise" placeholder="Entreprise">
-            <input id="id_typeentreprise" placeholder="Type d'Entreprise">                        
+        <select id="id_entreprise" name="entreprise">
+    		<option value="IBM">IBM</option>
+   			<option value="Apple">Apple</option>
+    		<option value="Microsoft">Microsoft</option>
+    		<option value="Capgemini">Capgemini</option>
+    		<option value="Orange">Orange</option>
+    		<option value="SFR">SFR</option>
+    		<option value="Bouygues Telecom">Bouygues Telecom</option>
+    		<option value="Free">Free</option>
+    		<option value="SFR">SFR</option>    		
+  		</select>
+
+        <select id="id_typeentreprise" name="typeentreprise">
+    		<option value="Stage">Stage</option>
+   			<option value="Apprentissage/Alternance">Apprentissage/Alternance</option>
+    		<option value="CDD">CDD</option>
+    		<option value="CDI">CDI</option>    		
+    		<option value="Freelance/Indépendant">Freelance/Indépendant</option>
+    		<option value="Intérim">Intérim</option>    		
+  		</select>                       
             <button type="submit" onClick="hide()">Masquer</button>
             <input type="submit" onClick="updateAdvertisement()">
  </div>
