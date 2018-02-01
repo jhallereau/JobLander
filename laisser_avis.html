@@ -8,9 +8,11 @@
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
     <script src="https://s3.amazonaws.com/stitch-sdks/js/library/v3/stable/stitch.min.js"></script>
     <script>
-        let client;
-        let db;
-        const clientPromise = stitch.StitchClientFactory.create('joblander-eqqgd');  //id de la base 
+         var ViewNameToUpdate;
+         var un_guid;
+         let client;
+         let db;
+         const clientPromise = stitch.StitchClientFactory.create('joblander-eqqgd');  //id de la base 
 
       clientPromise.then(client => {
         const db = client.service('mongodb', 'mongodb-atlas').db('JobLander');
@@ -24,27 +26,93 @@
         });
       });
 
+      function guid() {
+            function s4() {
+              return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+            }
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+              s4() + '-' + s4() + s4() + s4();
+          }
 
          function displayViewOnLoad() {
              clientPromise.then(stitchClient => {
                  client = stitchClient;
                  db = client.service('mongodb', 'mongodb-atlas').db('JobLander');
-                 return client.login().then(displayView)
+                 return client.login().then(displayViews)
              });
          }
 
-         function displayView() {
+         function displayViews() {
              db.collection('avis').find({}).limit(1000).execute().then(docs => {
-                 var html = docs.map(c => "<div>" + c.comment + "</div>").join("");
+                 var html = docs.map(c => "<div>" + c.note + " | " + c.titre + " | " + c.commentaire + " | " + c.point_p + " | " + c.point_n + " | " + c.date +  "<button type=\"submit\" id=\"view_del\" onClick=\"delView('"+c.guid+"')\">Supprimer</button><button type=\"submit\" id=\"view_update\" onClick=\"preupdateView('"+c.guid+"')\">Mettre à jour</button></div>").join("");
                  document.getElementById("view").innerHTML = html;
              });
          }
 
          function addView() {
-             var foo = document.getElementById("new_enterprise");
-             db.collection("avis").insertOne({owner_id : client.authedId(), comment: foo.value}).then(displayView);
-             foo.value = "";
+             alert("ajout");
+             var foo_note = document.getElementById("note").value;
+             var foo_titre = document.getElementById("titre").value;
+             var foo_commentaire = document.getElementById("commentaire").value;
+             var foo_point_positif = document.getElementById("p_positif").value;
+             var foo_point_negatif = document.getElementById("p_negatif").value;
+             var foo_date = document.getElementById("date").value;
+
+             db.collection("avis").insertOne({owner_id : client.authedId(), guid: guid(), note: foo_note, titre: foo_titre, commentaire: foo_commentaire, point_p: foo_point_positif, point_n: foo_point_negatif, date: foo_date}).then(displayViews);
+             foo_note.value = "";
+             foo_titre.value = "";
+             foo_commentaire.value = "";
+             foo_point_positif.value = "";
+             foo_point_negatif.value = "";
+             foo_date.value = "";
          }
+
+         function delView(guid){
+            try {
+                db.collection("avis").deleteOne( {guid : guid} );
+             } 
+             catch (e) {
+                console.log(e);
+             }
+          }
+
+          function hide(){
+            document.getElementById("up_view").style.visibility = "hidden";
+          }
+
+          function preupdateView(guid){
+            un_guid = guid;
+            document.getElementById("up_view").style.visibility = "visible";
+          }
+
+          function updateView(){
+            var foo_note_update = document.getElementById("note_update").value;
+            var foo_titre_update = document.getElementById("titre_update").value;
+            var foo_commentaire_update = document.getElementById("commentaire_update").value;
+            var foo_point_positif_update = document.getElementById("p_positif_update").value;
+            var foo_point_negatif_update = document.getElementById("p_negatif_update").value;
+            var foo_date_update = document.getElementById("date_update").value;
+
+             try{
+              db.collection("avis").updateOne({guid : un_guid}, {$set: {note: foo_note_update, titre: foo_titre_update, commentaire: foo_commentaire_update, point_p: foo_point_positif_update, point_n: foo_point_negatif_update, date: foo_date_update}});
+             }
+             catch (e){
+              console.log(e);
+             }
+      
+
+             foo_note_update.value = "";
+             foo_titre_update.value = "";
+             foo_commentaire_update.value = "";
+             foo_point_positif_update.value = "";
+             foo_point_negatif_update.value = "";
+             foo_date_update.value = "";
+             displayViewOnLoad();
+          }
+         
+
          </script>
 </head>
 
@@ -54,28 +122,29 @@
         <h2>Avis</h2>
 
             <br/>
-                <div id="view"></div>
-                <hr>
-                Ajouter un avis: <input id="new_enterprise"><input type="submit" onClick="addView()">
+            <div id="view"></div>
+            <hr>
+            Ajouter un avis : 
+            <input id="note" placeholder="Note">
+            <input id="titre" placeholder="Titre">
+            <input id="commentaire" placeholder="Commentaire">
+            <input id="p_positif" placeholder="Points positifs">
+            <input id="p_negatif" placeholder="Points négatifs">
+            <input id="date" placeholder="Date" type="date">
+            <input type="submit" onClick="addView()">
 
-    <!-- <table>
-        <tr>
-          <th>Note</th>
-          <th>Titre</th> 
-          <th>Commentaire</th>
-          <th>Points positifs</th>
-          <th>Points négatifs</th>
-          <th>Date</th>
-        </tr>
-        <tr>
-          <td>5/5</td>
-          <td>Top !</td> 
-          <td>Entreprise jeune et innovante, de l'avenir devant elle !</td>
-          <td>Bonne ambiance, matériel à la pointe de la technologie, et tâches bien partagées.</td>
-          <th>Pas de croissants le vendredi matin.</th>
-          <th>22 février 1996</th>
-        </tr>
-      </table> -->
+<div id="up_view" style="visibility : hidden">
+            <h3>Mise à jour de l'avis : </h3>
+            <input id="note_update" placeholder="Note">
+            <input id="titre_update" placeholder="Titre">
+            <input id="commentaire_update" placeholder="Commentaire">
+            <input id="p_positif_update" placeholder="Points positifs">
+            <input id="p_negatif_update" placeholder="Points négatifs">
+            <input id="date_update" placeholder="Date">
+            <button type="submit" onClick="hide()">Masquer</button>
+            <input type="submit" onClick="updateView()">
+ </div>
+
 <br>
 <form action="depot_annonce.html" method="get">
         <input type="submit" value="< Annonces >" name="Submit" id="frm3_submit" />
