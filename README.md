@@ -56,3 +56,5 @@ Dans notre exemple, nous utiliserons la partie Annonce, le principe étant le m�
 - Conversion de plusieurs champs de type texte vers numérique
 - Ajouts des points + et - dans la partie avis
 - Mise à jour du template
+
+ATTENTION : Penser à refresh la page après l'update et le delete pour voir le résultat!!!
