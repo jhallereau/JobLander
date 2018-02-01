@@ -60,6 +60,10 @@
              var foo_point_negatif = document.getElementById("p_negatif").value;
              var foo_date = document.getElementById("date").value;
 
+            if(foo_note == null || foo_note == "" || foo_titre == null || foo_titre == "" || foo_commentaire == null || foo_commentaire == "" ||foo_point_positif == null || foo_point_positif == "" || foo_point_negatif == null || foo_point_negatif == "" || foo_date == null || foo_date == ""){
+                alert("Veuillez remplir les champs requis");
+            }
+            else{
              db.collection("avis").insertOne({owner_id : client.authedId(), guid: guid(), note: foo_note, titre: foo_titre, commentaire: foo_commentaire, point_p: foo_point_positif, point_n: foo_point_negatif, date: foo_date}).then(displayViews);
              foo_note.value = "";
              foo_titre.value = "";
@@ -67,6 +71,7 @@
              foo_point_positif.value = "";
              foo_point_negatif.value = "";
              foo_date.value = "";
+            }
          }
 
          function delView(guid){
@@ -95,13 +100,12 @@
             var foo_point_negatif_update = document.getElementById("p_negatif_update").value;
             var foo_date_update = document.getElementById("date_update").value;
 
-             try{
+            if(foo_note_update == null || foo_note_update == "" || foo_titre_update == null || foo_titre_update == "" || foo_commentaire_update == null || foo_commentaire_update == "" ||foo_point_positif_update == null || foo_point_positif_update == "" || foo_point_negatif_update == null || foo_point_negatif_update == "" || foo_date_update == null || foo_date_update == ""){
+                alert("Veuillez remplir les champs requis");
+            }
+            else{
               db.collection("avis").updateOne({guid : un_guid}, {$set: {note: foo_note_update, titre: foo_titre_update, commentaire: foo_commentaire_update, point_p: foo_point_positif_update, point_n: foo_point_negatif_update, date: foo_date_update}});
-             }
-             catch (e){
-              console.log(e);
-             }
-      
+            }
 
              foo_note_update.value = "";
              foo_titre_update.value = "";
@@ -125,22 +129,39 @@
             <div id="view"></div>
             <hr>
             Ajouter un avis : 
-            <input id="note" placeholder="Note">
-            <input id="titre" placeholder="Titre">
-            <input id="commentaire" placeholder="Commentaire">
-            <input id="p_positif" placeholder="Points positifs">
-            <input id="p_negatif" placeholder="Points négatifs">
-            <input id="date" placeholder="Date" type="date">
+            <select id="note" placeholder="Note" name="note" required>
+              <option value="" disabled selected>Sélectionner une note</option>
+              <option>0</option>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>    		
+              <option>4</option>
+              <option>5</option>    		
+            </select>
+            
+            <input id="titre" placeholder="Titre" required>
+            <input id="commentaire" placeholder="Commentaire" required>
+            <input id="p_positif" placeholder="Points positifs" required>
+            <input id="p_negatif" placeholder="Points négatifs" required>
+            <input id="date" placeholder="Date" type="date" required>
             <input type="submit" onClick="addView()">
 
 <div id="up_view" style="visibility : hidden">
             <h3>Mise à jour de l'avis : </h3>
-            <input id="note_update" placeholder="Note">
+            <select id="note_update" placeholder="Note" name="note" required>
+                <option value="" disabled selected>Sélectionner une note</option>
+                <option>0</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>    		
+                <option>4</option>
+                <option>5</option>    		
+              </select>
             <input id="titre_update" placeholder="Titre">
             <input id="commentaire_update" placeholder="Commentaire">
             <input id="p_positif_update" placeholder="Points positifs">
             <input id="p_negatif_update" placeholder="Points négatifs">
-            <input id="date_update" placeholder="Date">
+            <input id="date_update" placeholder="Date" type="date">
             <button type="submit" onClick="hide()">Masquer</button>
             <input type="submit" onClick="updateView()">
  </div>
