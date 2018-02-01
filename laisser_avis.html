@@ -6,6 +6,7 @@
     <title>JobLander - Avis</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+    <link rel="stylesheet" href="css/style.css">
     <script src="https://s3.amazonaws.com/stitch-sdks/js/library/v3/stable/stitch.min.js"></script>
     <script>
          var ViewNameToUpdate;
@@ -46,10 +47,17 @@
 
          function displayViews() {
              db.collection('avis').find({}).limit(1000).execute().then(docs => {
-                 var html = docs.map(c => "<div>" + c.note + " | " + c.titre + " | " + c.commentaire + " | " + c.point_p + " | " + c.point_n + " | " + c.date +  "<button type=\"submit\" id=\"view_del\" onClick=\"delView('"+c.guid+"')\">Supprimer</button><button type=\"submit\" id=\"view_update\" onClick=\"preupdateView('"+c.guid+"')\">Mettre à jour</button></div>").join("");
+                 var html = docs.map(c => "<div>" + c.note + " | " + c.titre + " | " + c.commentaire + " | " + c.point_p + " | " + c.point_n + " | " + c.date +  "<button type=\"submit\" class=\"btn btn-primary\" id=\"view_del\" onClick=\"delView('"+c.guid+"')\">Supprimer</button>  <button class=\"btn btn-primary\" type=\"submit\" id=\"view_update\" onClick=\"preupdateView('"+c.guid+"')\">Mettre à jour</button></div>").join("");
                  document.getElementById("view").innerHTML = html;
              });
          }
+
+         function format(inputDate){
+            var date = new Date(inputDate);
+            if (!isNaN(d.getTime())){
+                return date.getMonth() + 1 + '/' + date.getDate() + '/' + date.getFullYear();
+            }
+        }
 
          function addView() {
              alert("ajout");
@@ -59,8 +67,9 @@
              var foo_point_positif = document.getElementById("p_positif").value;
              var foo_point_negatif = document.getElementById("p_negatif").value;
              var foo_date = document.getElementById("date").value;
+               
 
-            if(foo_note == null || foo_note == "" || foo_titre == null || foo_titre == "" || foo_commentaire == null || foo_commentaire == "" ||foo_point_positif == null || foo_point_positif == "" || foo_point_negatif == null || foo_point_negatif == "" || foo_date == null || foo_date == ""){
+            if(foo_note == null || foo_note == "" || foo_titre == null || foo_titre == "" || foo_commentaire == null || foo_commentaire == "" || foo_date == null || foo_date == ""){
                 alert("Veuillez remplir les champs requis");
             }
             else{
@@ -75,12 +84,16 @@
          }
 
          function delView(guid){
+
+          if (confirm("Etes vous sûre de vouloir détruire cet avis ? ")) {
             try {
                 db.collection("avis").deleteOne( {guid : guid} );
              } 
              catch (e) {
                 console.log(e);
              }
+             location.reload();
+          } 
           }
 
           function hide(){
@@ -100,20 +113,27 @@
             var foo_point_negatif_update = document.getElementById("p_negatif_update").value;
             var foo_date_update = document.getElementById("date_update").value;
 
-            if(foo_note_update == null || foo_note_update == "" || foo_titre_update == null || foo_titre_update == "" || foo_commentaire_update == null || foo_commentaire_update == "" ||foo_point_positif_update == null || foo_point_positif_update == "" || foo_point_negatif_update == null || foo_point_negatif_update == "" || foo_date_update == null || foo_date_update == ""){
+            if(foo_note_update == null || foo_note_update == "" || foo_titre_update == null || foo_titre_update == "" || foo_commentaire_update == null || foo_commentaire_update == "" || foo_date_update == null || foo_date_update == ""){
                 alert("Veuillez remplir les champs requis");
             }
             else{
               db.collection("avis").updateOne({guid : un_guid}, {$set: {note: foo_note_update, titre: foo_titre_update, commentaire: foo_commentaire_update, point_p: foo_point_positif_update, point_n: foo_point_negatif_update, date: foo_date_update}});
-            }
-
-             foo_note_update.value = "";
+              foo_note_update.value = "";
              foo_titre_update.value = "";
              foo_commentaire_update.value = "";
              foo_point_positif_update.value = "";
              foo_point_negatif_update.value = "";
              foo_date_update.value = "";
              displayViewOnLoad();
+             document.getElementById("up_view").style.visibility = "hidden";
+
+             document.getElementById("note_update").value = "";
+             document.getElementById("titre_update").value = "";
+             document.getElementById("commentaire_update").value = "";
+             document.getElementById("p_positif_update").value = "";
+             document.getElementById("p_negatif_update").value = "";
+             document.getElementById("date_update").value = ""; 
+            }
           }
          
 
@@ -124,12 +144,10 @@
 
         <h1>JobLander</h1>  
         <h2>Avis</h2>
-
-            <br/>
             <div id="view"></div>
             <hr>
             Ajouter un avis : 
-            <select id="note" placeholder="Note" name="note" required>
+            <select id="note" class="form-control" placeholder="Note" name="note" required>
               <option value="" disabled selected>Sélectionner une note</option>
               <option>0</option>
               <option>1</option>
@@ -139,16 +157,16 @@
               <option>5</option>    		
             </select>
             
-            <input id="titre" placeholder="Titre" required>
-            <input id="commentaire" placeholder="Commentaire" required>
-            <input id="p_positif" placeholder="Points positifs" required>
-            <input id="p_negatif" placeholder="Points négatifs" required>
-            <input id="date" placeholder="Date" type="date" required>
-            <input type="submit" onClick="addView()">
+            <input id="titre" class="form-control" class="form-control" placeholder="Titre" required>
+            <input id="commentaire" class="form-control" placeholder="Commentaire" required>
+            <input id="p_positif" class="form-control" placeholder="Points positifs">
+            <input id="p_negatif" class="form-control" placeholder="Points négatifs">
+            <input id="date" class="form-control" placeholder="Date" type="date" required>
+            <input type="submit" class="form-control" onClick="addView()" class="btn btn-primary">
 
 <div id="up_view" style="visibility : hidden">
             <h3>Mise à jour de l'avis : </h3>
-            <select id="note_update" placeholder="Note" name="note" required>
+            <select id="note_update" class="form-control" placeholder="Note" name="note" required>
                 <option value="" disabled selected>Sélectionner une note</option>
                 <option>0</option>
                 <option>1</option>
@@ -157,24 +175,25 @@
                 <option>4</option>
                 <option>5</option>    		
               </select>
-            <input id="titre_update" placeholder="Titre">
-            <input id="commentaire_update" placeholder="Commentaire">
-            <input id="p_positif_update" placeholder="Points positifs">
-            <input id="p_negatif_update" placeholder="Points négatifs">
-            <input id="date_update" placeholder="Date" type="date">
-            <button type="submit" onClick="hide()">Masquer</button>
-            <input type="submit" onClick="updateView()">
+            <input id="titre_update" class="form-control" placeholder="Titre" required>
+            <input id="commentaire_update" class="form-control" placeholder="Commentaire" required>
+            <input id="p_positif_update" class="form-control" placeholder="Points positifs">
+            <input id="p_negatif_update" class="form-control" placeholder="Points négatifs">
+            <input id="date_update" class="form-control" placeholder="Date" type="date" required>
+
+            <button type="submit" onClick="hide()" class="btn btn-primary">Masquer</button>
+            <input type="submit" onClick="updateView()" class="btn btn-primary">
  </div>
 
 <br>
 <form action="depot_annonce.html" method="get">
-        <input type="submit" value="< Annonces >" name="Submit" id="frm3_submit" />
+        <input type="submit" value="Annonces" class="btn btn-primary" name="Submit" id="frm3_submit" />
     </form>
       <form action="index.html" method="get">
-        <input type="submit" value="Accueil" name="Submit" id="frm1_submit" />
+        <input type="submit" value="Accueil" class="btn btn-primary" name="Submit" id="frm1_submit" />
     </form>
     <form action="liste_entreprise.html" method="get">
-            <input type="submit" value="Entreprises >" name="Submit" id="frm1_submit" />
+            <input type="submit" value="Entreprises" class="btn btn-primary" name="Submit" id="frm1_submit" />
         </form>
 </body>
 </html>
