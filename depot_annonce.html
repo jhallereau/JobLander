@@ -1,240 +1,236 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>JobLander - Annonces</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
-    <script src="https://s3.amazonaws.com/stitch-sdks/js/library/v3/stable/stitch.min.js"></script>
-    <script>
-        let client;
-        let db;
-        const clientPromise = stitch.StitchClientFactory.create('joblander-eqqgd');  //id de la base 
+	<!DOCTYPE html>
+	<html>
+	<head>
+	    <meta charset="utf-8" />
+	    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	    <title>JobLander - Annonces</title>
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+	    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+   		<link rel="stylesheet" href="css/style.css">
+	    <script src="https://s3.amazonaws.com/stitch-sdks/js/library/v3/stable/stitch.min.js"></script>
+	    <script>
+	        let client;
+	        let db;
+	        const clientPromise = stitch.StitchClientFactory.create('joblander-eqqgd');  //id de la base 
 
-      clientPromise.then(client => {
-        const db = client.service('mongodb', 'mongodb-atlas').db('JobLander');
-        client.login().then(()=>
-          db.collection('emplois').find({owner_id: client.authedId()}).limit(100).execute()
-        ).then(docs => {
-          console.log("Found docs", docs)
-          console.log("[MongoDB Stitch] Connected to Stitch")
-        }).catch(err => {
-          console.error(err)
-        });
-      });
-
-
-         function displayAdvertisementOnLoad() {
-             clientPromise.then(stitchClient => {
-                 client = stitchClient;
-                 db = client.service('mongodb', 'mongodb-atlas').db('JobLander');
-                 return client.login().then(displayAdvertisement)
-             });
-         }
-
-         function displayAdvertisement() {
-             db.collection('emplois').find({}).limit(1000).execute().then(docs => {
-                 var html = docs.map(c => "<div>" + c.intitule + " | "  + c.datepublication+ " | "+ c.contenu + " | "+ c.tags + " | "+ c.entreprise + " | "+ c.typecontrat +"</div><button id=\"id_annonce1\" value="+c.intitule+" onClick=\"removeAdvertisement()\" type=\"submit\">Supprimer</button><button type=\"submit\" id=\"id_annonce2\" onClick=\"preupdateAnnonce('"+c.guid+"')\" value="+c.siret+">Mettre à jour</button>").join("");
-                 document.getElementById("advertisements").innerHTML = html;
-             });
-         }
+	      clientPromise.then(client => {
+	        const db = client.service('mongodb', 'mongodb-atlas').db('JobLander');
+	        client.login().then(()=>
+	          db.collection('emplois').find({owner_id: client.authedId()}).limit(100).execute()
+	        ).then(docs => {
+	          console.log("Found docs", docs)
+	          console.log("[MongoDB Stitch] Connected to Stitch")
+	        }).catch(err => {
+	          console.error(err)
+	        });
+	      });
 
 
-         function guid() {
-            function s4() {
-              return Math.floor((1 + Math.random()) * 0x10000)
-                .toString(16)
-                .substring(1);
-            }
-            return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-              s4() + '-' + s4() + s4() + s4();
-          }
+	         function displayAdvertisementOnLoad() {
+	             clientPromise.then(stitchClient => {
+	                 client = stitchClient;
+	                 db = client.service('mongodb', 'mongodb-atlas').db('JobLander');
+	                 return client.login().then(displayAdvertisement)
+	             });
+	         }
 
-         function addAdvertisement() {
-             var foo = document.getElementById("new_annonce");
-             var foo_datepublication = document.getElementById("new_datepublication");
-             var foo_contenu = document.getElementById("new_contenu");
-             var foo_tags = document.getElementById("new_tag");
-             var foo_entreprise = document.getElementById("new_entreprise");
-             var foo_typecontrat = document.getElementById("new_typecontrat");
+	         //Fonction d'affichage des données
+	         function displayAdvertisement() {
+	             db.collection('emplois').find({}).limit(1000).execute().then(docs => {
+	                 var html = docs.map(c => "<div>" + c.intitule + " | "  + c.datepublication+ " | "+ c.contenu + " | "+ c.tags + " | "+ c.entreprise + " | "+ c.typecontrat +" <button id=\"id_annonce1\" class=\"btn btn-primary\" value="+c.intitule+" onClick=\"removeAdvertisement()\" type=\"submit\">Supprimer</button> <button type=\"submit\" id=\"id_annonce2\" class=\"btn btn-primary\" onClick=\"preupdateAnnonce('"+c.guid+"')\" value="+c.siret+">Mettre à jour</button></div>").join("");
+	                 document.getElementById("advertisements").innerHTML = html;
+	             });
+	         }
 
-             if(foo.value==""||foo_datepublication.value==""||foo_contenu.value==""||foo_tags.value==""||foo_entreprise.value==""||foo_typecontrat.value==""||foo.value==null||foo_datepublication.value==null||foo_contenu.value==null||foo_tags.value==null||foo_entreprise.value==null||foo_typecontrat.value==null){
-             	alert("Veuillez remplir tous les champs")
-             }else{
-             db.collection("emplois").insertOne({owner_id : client.authedId(),guid: guid(), intitule: foo.value, datepublication : foo_datepublication.value, contenu : foo_contenu.value, tags : foo_tags.value, entreprise : foo_entreprise.value, typecontrat : foo_typecontrat.value}).then(displayAdvertisement);
-             foo.value = "";
-         	}
-         }
+	         //Fonction de génération d'un id unique
+	         function guid() {
+	            function s4() {
+	              return Math.floor((1 + Math.random()) * 0x10000)
+	                .toString(16)
+	                .substring(1);
+	            }
+	            return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+	              s4() + '-' + s4() + s4() + s4();
+	          }
 
-          function removeAdvertisement() {
-            var annonceNameToDelete = document.getElementById("id_annonce").value;
-            console.log(annonceNameToDelete);
-             try {
-               db.collection("emplois").deleteOne( {guid : guid} );
-            }
-            catch (e) {
-               console.log(e);
-            }
-         }
+	         //Fonction d'ajout d'une annonce, fonctionne seulement si l'ensemble des champs sont remplis
+	         function addAdvertisement() {
+	             var foo = document.getElementById("new_annonce");
+	             var foo_datepublication = document.getElementById("new_datepublication");
+	             var foo_contenu = document.getElementById("new_contenu");
+	             var foo_tags = document.getElementById("new_tag");
+	             var foo_entreprise = document.getElementById("new_entreprise");
+	             var foo_typecontrat = document.getElementById("new_typecontrat");
 
-          function hide(){
-            document.getElementById("up_annonce").style.visibility = "hidden";
-          }
+	             if(foo.value==""||foo_datepublication.value==""||foo_contenu.value==""||foo_tags.value==""||foo_entreprise.value==""||foo_typecontrat.value==""||foo.value==null||foo_datepublication.value==null||foo_contenu.value==null||foo_tags.value==null||foo_entreprise.value==null||foo_typecontrat.value==null){
+	             	alert("Veuillez remplir tous les champs")
+	             }else{
+	             db.collection("emplois").insertOne({owner_id : client.authedId(),guid: guid(), intitule: foo.value, datepublication : foo_datepublication.value, contenu : foo_contenu.value, tags : foo_tags.value, entreprise : foo_entreprise.value, typecontrat : foo_typecontrat.value}).then(displayAdvertisement);
+	             foo.value = "";
+	         	}
+	         }
 
-          function preupdateAnnonce(guid){
-            un_guid = guid;
-            document.getElementById("up_annonce").style.visibility = "visible";
-          }
+	         //Fonction de suppression d'une annonce
+	          function removeAdvertisement() {
+	            var annonceNameToDelete = document.getElementById("id_annonce").value;
+	             try {
+	               db.collection("emplois").deleteOne( {guid : guid} );
+	            }
+	            catch (e) {
+	               console.log(e);
+	            }
+          		
+	         }
 
-          function updateAdvertisement(){
-             var foo2 = document.getElementById("id_annonce").value;
-             var foo_datepublication2 = document.getElementById("id_datepublication").value;
-             var foo_contenu2 = document.getElementById("id_contenu").value;
-             var foo_tags2 = document.getElementById("id_tag").value;
-             var foo_entreprise2 = document.getElementById("id_entreprise").value;
-             var foo_typecontrat2 = document.getElementById("id_typecontrat").value;
+	         //Fonction permettant de masquer la ligne de modification lorsqu'elle n'est pas utilisée
+	          function hide(){
+	            document.getElementById("up_annonce").style.visibility = "hidden";
+	          }
 
-             try{
+	          //Fonction permettant d'afficher la ligne de modification
+	          function preupdateAnnonce(guid){
+	            un_guid = guid;
+	            document.getElementById("up_annonce").style.visibility = "visible";
+	          }
 
-             if(foo2==""||foo_datepublication2==""||foo_contenu2==""||foo_tags2==""||foo_entreprise2==""||foo_typecontrat2==""||foo2==null||foo_datepublication2==null||foo_contenu2==null||foo_tags2==null||foo_entreprise2==null||foo_typecontrat2==null){
-             	alert("Veuillez remplir tous les champs")
-             }else{
+	          //Fonction réalisant la modification des valeurs de la ligne sélectionnée
+	          function updateAdvertisement(){
+	             var foo_update = document.getElementById("id_annonce").value;
+	             var foo_datepublication_update = document.getElementById("id_datepublication").value;
+	             var foo_contenu_update = document.getElementById("id_contenu").value;
+	             var foo_tags_update = document.getElementById("id_tag").value;
+	             var foo_entreprise_update = document.getElementById("id_entreprise").value;
+	             var foo_typecontrat_update = document.getElementById("id_typecontrat").value;
 
-              db.collection("emplois").updateOne({guid : un_guid}, {$set: {intitule: foo2, datepublication: foo_datepublication2, contenu : foo_contenu2, tags : foo_tags2, entreprise : foo_entreprise2,typecontrat : foo_typecontrat2}});
-              	}
+	             if(foo_update==""||foo_datepublication_update==""||foo_contenu_update==""||foo_tags_update==""||foo_entreprise_update==""||foo_typecontrat_update==""||foo_update==null||foo_datepublication_update==null||foo_contenu_update==null||foo_tags_update==null||foo_entreprise_update==null||foo_typecontrat_update==null){
+	             	alert("Veuillez remplir tous les champs")
+	             }else{
 
-             }
-             catch (e){
-              console.log(e);
-             }
-             displayAdvertisementOnLoad();
-          }
+	              db.collection("emplois").updateOne({guid : un_guid}, {$set: {intitule: foo_update, datepublication: foo_datepublication_update, contenu : foo_contenu_update, tags : foo_tags_update, entreprise : foo_entreprise_update,typecontrat : foo_typecontrat_update}})
 
-         function searchByTag() {
-             var foo_tagtoSearch = document.getElementById("search_tag").value;
-             //document.getElementById("nb_annoncesPerTag").value = db.collection("emplois").count({tags: foo_tagtoSearch});
-             db.collection("emplois").count({tags: foo_tagtoSearch}).then(function(value) {
-				document.getElementById("nb_annoncesPerTag").value=value
-             })    
-         }
+	             document.getElementById("up_annonce").style.visibility = "hidden";
 
-         function totalAnnonces() {
-             db.collection("emplois").count().then(function(value) {
-				document.getElementById("total_annonces").value=value
-             })    
-         }
+	             document.getElementById("id_annonce").value="";
+	             document.getElementById("id_datepublication").value="";
+	             document.getElementById("id_contenu").value="";
+	             document.getElementById("id_tag").value="";
+	             document.getElementById("id_entreprise").value="";
+	             document.getElementById("id_typecontrat").value="";
 
-         </script>
-</head>
-<body onload="displayAdvertisementOnLoad()">
-        <h1>JobLander</h1>  
-        <h2>Annonces</h2>
-        <br/>
-        <div id="advertisements"></div>
-        <hr>
-        Ajouter une annonce: <br><input id="new_annonce" placeholder="annonce">
-        <input id="new_datepublication" type="Date"><br><br>
-        <input id="new_contenu" placeholder="Contenu">
-        <input id="new_tag" placeholder="Tag"><br><br>
-        <select id="new_entreprise" name="entreprise">
-        	<option value="" disabled selected>Sélectionner l'entreprise</option>       
-    		<option>IBM</option>
-   			<option>Apple</option>
-    		<option>Microsoft</option>
-    		<option>Capgemini</option>
-    		<option>Orange</option>
-    		<option>SFR</option>
-    		<option>Bouygues Telecom</option>
-    		<option>Free</option>
-    		<option>SFR</option>    		
-  		</select>
+	             displayAdvertisementOnLoad();
+	             }
+	          }
 
-        <select id="new_typecontrat" name="typecontrat">
-        	<option value="" disabled selected>Sélectionner le type de contrat</option>        	
-    		<option>Stage</option>
-   			<option>Apprentissage/Alternance</option>
-    		<option>CDD</option>
-    		<option>CDI</option>    		
-    		<option>Freelance/Indépendant</option>
-    		<option>Intérim</option>    		
-  		</select><br><br>
+	         //Fonction de recherche du nombre d'annonce selon le tag saisi
+	         function searchByTag() {
+	             var foo_tagtoSearch = document.getElementById("search_tag").value;
+	             db.collection("emplois").count({tags: foo_tagtoSearch}).then(function(value) {
+					document.getElementById("nb_annoncesPerTag").value=value
+	             })    
+	         }
 
-        <input type="submit" onClick="addAdvertisement()"><br><br>
+	         //Fonction de calcul du nombre d'annonces créées
+	         function totalAnnonces() {
+	             db.collection("emplois").count().then(function(value) {
+					document.getElementById("total_annonces").value=value
+	             })    
+	         }
+	         </script>
+	</head>
+	<body onload="displayAdvertisementOnLoad()">
+	        <h1>JobLander</h1>  
+	        <h2>Annonces</h2>
+	        <br/>
+	        <div id="advertisements"></div>
+	        <hr>
+
+	        <!-- Définition des champs à renseigner pour réaliser un ajout -->
+	        Ajouter une annonce: <br><input id="new_annonce" class="form-control" placeholder="Annonce">
+	        <input id="new_datepublication" class="form-control" type="Date"><br><br>
+	        <input id="new_contenu" class="form-control"  placeholder="Contenu">
+	        <input id="new_tag" class="form-control"  placeholder="Tag"><br><br>
+	        <select id="new_entreprise" class="form-control"  name="entreprise">
+	        	<option value="" disabled selected>Sélectionner l'entreprise</option>       
+	    		<option>IBM</option>
+	   			<option>Apple</option>
+	    		<option>Microsoft</option>
+	    		<option>Capgemini</option>
+	    		<option>Orange</option>
+	    		<option>SFR</option>
+	    		<option>Bouygues Telecom</option>
+	    		<option>Free</option>
+	    		<option>SFR</option>    		
+	  		</select>
+
+	        <select id="new_typecontrat" class="form-control"  name="typecontrat">
+	        	<option value="" disabled selected>Sélectionner le type de contrat</option>        	
+	    		<option>Stage</option>
+	   			<option>Apprentissage/Alternance</option>
+	    		<option>CDD</option>
+	    		<option>CDI</option>    		
+	    		<option>Freelance/Indépendant</option>
+	    		<option>Intérim</option>    		
+	  		</select><br><br>
+
+	        <button type="submit" class="btn btn-primary" onClick="addAdvertisement()">Ajouter</button><br><br>
 
 
+	        <!-- Définition des champs à renseigner pour réaliser une modification -->
+	  		 <div id="up_annonce" style="visibility : hidden">
+	            <h3>Mise à jour de l'entreprise : </h3>
+	            <input id="id_annonce" class="form-control"  placeholder="Annonce">
+	            <input id="id_datepublication" class="form-control"  type="Date">
+	            <input id="id_contenu" class="form-control"  placeholder="Contenu">
+	            <input id="id_tag" class="form-control"  placeholder="Tag">
+	        <select id="id_entreprise" class="form-control"  name="entreprise">
+	        	<option value="" disabled selected>Sélectionner l'entreprise</option>        	
+	    		<option>IBM</option>
+	   			<option>Apple</option>
+	    		<option>Microsoft</option>
+	    		<option>Capgemini</option>
+	    		<option>Orange</option>
+	    		<option>SFR</option>
+	    		<option>Bouygues Telecom</option>
+	    		<option>Free</option>
+	    		<option>SFR</option>    		
+	  		</select>
 
-  		 <div id="up_annonce" style="visibility : hidden">
-            <h3>Mise à jour de l'entreprise : </h3>
-            <input id="id_annonce" placeholder="Annonce">
-            <input id="id_datepublication" type="Date">
-            <input id="id_contenu" placeholder="Contenu">
-            <input id="id_tag" placeholder="Tag">
-        <select id="id_entreprise" name="entreprise">
-        	<option value="" disabled selected>Sélectionner l'entreprise</option>        	
-    		<option>IBM</option>
-   			<option>Apple</option>
-    		<option>Microsoft</option>
-    		<option>Capgemini</option>
-    		<option>Orange</option>
-    		<option>SFR</option>
-    		<option>Bouygues Telecom</option>
-    		<option>Free</option>
-    		<option>SFR</option>    		
-  		</select>
+	        <select id="id_typecontrat" class="form-control"  name="typecontrat">
+	        	<option value="" disabled selected>Sélectionner le type de contrat</option>
+	    		<option>Stage</option>
+	   			<option>Apprentissage/Alternance</option>
+	    		<option>CDD</option>
+	    		<option>CDI</option>    		
+	    		<option>Freelance/Indépendant</option>
+	    		<option>Intérim</option>    		
+	  		</select>                       
+	            <button type="submit" class="btn btn-primary" onClick="hide()">Masquer</button>
+	            <button type="submit" class="btn btn-primary" onClick="updateAdvertisement()">Mettre à jour</button>
+	 		</div><br>
 
-        <select id="id_typecontrat" name="typecontrat">
-        	<option value="" disabled selected>Sélectionner le type de contrat</option>
-    		<option>Stage</option>
-   			<option>Apprentissage/Alternance</option>
-    		<option>CDD</option>
-    		<option>CDI</option>    		
-    		<option>Freelance/Indépendant</option>
-    		<option>Intérim</option>    		
-  		</select>                       
-            <button type="submit" onClick="hide()">Masquer</button>
-            <input type="submit" onClick="updateAdvertisement()">
- 		</div><br>
+	        <!-- Définition de la zone statistiques-->
+	 		<div id="stats_zone">
+	            <h3>Statistiques</h3>
+	            Saisir un tag :
+	 			<input id="search_tag" class="form-control"  placeholder="Tag à rechercher"><button type="submit" class="btn btn-primary" onClick="searchByTag()">Filtrer</button><br>
+	 			Nombre d'annonces pour ce tag : 
+	 			<input id="nb_annoncesPerTag" class="form-control" ><br><br>
+	 			Calculer le nombre total d'annonces :
+	 			<button type="submit" class="btn btn-primary" onClick="totalAnnonces()">Calculer</button><br>
+	 			<input id="total_annonces" class="form-control" placeholder="Nombre total d'annonces">
 
- 		<div id="stats_zone">
-            <h3>Statistiques</h3>
-            Saisir un tag :
- 			<input id="search_tag" placeholder="Tag à rechercher"><input type="submit" onClick="searchByTag()"><br>
- 			Nombre d'annonces pour ce tag : 
- 			<input id="nb_annoncesPerTag"><br><br>
- 			Calculer le nombre total d'annonces :
- 			<input type="submit" onClick="totalAnnonces()"><br>
- 			<input id="total_annonces">
+	 		</div>
 
- 		</div>
-    <!-- <table>
-          <th>Intitulé</th>
-        <tr>
-          <th>Date de publication</th> 
-          <th>Contenu</th>
-          <th>Tags associés</th>
-          <th>Entreprise associé</th>
-          <th>Type de contrat</th>
-        </tr>
-        <tr>
-          <td>Développeur Web</td>
-          <td>22 février 2018</td> 
-          <td>L'entreprise Abc recherche un développeur web</td>
-          <td>Développeur, informatique, html, php...</td>
-          <th>Microsoft</th>
-          <th>CDI</th>
-        </tr>
-      </table> -->
-
-      <br>
-      <form action="laisser_avis.html" method="get">
-            <input type="submit" value="< Avis" name="Submit" id="frm1_submit" />
-        </form>
-      <form action="index.html" method="get">
-        <input type="submit" value="Accueil" name="Submit" id="frm1_submit" />
-    </form>
-    <form action="liste_entreprise.html" method="get">
-            <input type="submit" value="Entreprises >" name="Submit" id="frm1_submit" />
-        </form>
-</body>
-</html>
+	       <!-- Redirections vers les autres pages de l'API -->
+	      <br>
+	      <form action="laisser_avis.html" method="get">
+	            <button type="submit" class="btn btn-primary" value="Avis" name="Submit" id="frm1_submit">Avis</button>
+	        </form>
+	      <form action="index.html" method="get">
+	        <button type="submit" class="btn btn-primary" value="Accueil" name="Submit" id="frm1_submit">Accueil</button>
+	    </form>
+	    <form action="liste_entreprise.html" method="get">
+	            <button type="submit" class="btn btn-primary" value="Entreprises >" name="Submit" id="frm1_submit">Entreprises</button>
+	        </form>
+	</body>
+	</html>
