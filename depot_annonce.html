@@ -35,7 +35,7 @@
 
          function displayAdvertisement() {
              db.collection('emplois').find({}).limit(1000).execute().then(docs => {
-                 var html = docs.map(c => "<div>" + c.intitule + " | "  + c.datepublication+ " | "+ c.contenu + " | "+ c.tags + " | "+ c.entreprise + " | "+ c.typeentreprise +"</div><button id=\"id_annonce1\" value="+c.intitule+" onClick=\"removeAdvertisement()\" type=\"submit\">Supprimer</button><button type=\"submit\" id=\"id_annonce2\" onClick=\"preupdateAnnonce('"+c.guid+"')\" value="+c.siret+">Mettre à jour</button>").join("");
+                 var html = docs.map(c => "<div>" + c.intitule + " | "  + c.datepublication+ " | "+ c.contenu + " | "+ c.tags + " | "+ c.entreprise + " | "+ c.typecontrat +"</div><button id=\"id_annonce1\" value="+c.intitule+" onClick=\"removeAdvertisement()\" type=\"submit\">Supprimer</button><button type=\"submit\" id=\"id_annonce2\" onClick=\"preupdateAnnonce('"+c.guid+"')\" value="+c.siret+">Mettre à jour</button>").join("");
                  document.getElementById("advertisements").innerHTML = html;
              });
          }
@@ -57,11 +57,14 @@
              var foo_contenu = document.getElementById("new_contenu");
              var foo_tags = document.getElementById("new_tag");
              var foo_entreprise = document.getElementById("new_entreprise");
-             var foo_typeentreprise = document.getElementById("new_typeentreprise");
+             var foo_typecontrat = document.getElementById("new_typecontrat");
 
-
-             db.collection("emplois").insertOne({owner_id : client.authedId(),guid: guid(), intitule: foo.value, datepublication : foo_datepublication.value, contenu : foo_contenu.value, tags : foo_tags.value, entreprise : foo_entreprise.value, typeentreprise : foo_typeentreprise.value}).then(displayAdvertisement);
+             if(foo.value==""||foo_datepublication.value==""||foo_contenu.value==""||foo_tags.value==""||foo_entreprise.value==""||foo_typecontrat.value==""||foo.value==null||foo_datepublication.value==null||foo_contenu.value==null||foo_tags.value==null||foo_entreprise.value==null||foo_typecontrat.value==null){
+             	alert("Veuillez remplir tous les champs")
+             }else{
+             db.collection("emplois").insertOne({owner_id : client.authedId(),guid: guid(), intitule: foo.value, datepublication : foo_datepublication.value, contenu : foo_contenu.value, tags : foo_tags.value, entreprise : foo_entreprise.value, typecontrat : foo_typecontrat.value}).then(displayAdvertisement);
              foo.value = "";
+         	}
          }
 
           function removeAdvertisement() {
@@ -85,15 +88,22 @@
           }
 
           function updateAdvertisement(){
-             var foo = document.getElementById("id_annonce").value;
-             var foo_datepublication = document.getElementById("id_datepublication").value;
-             var foo_contenu = document.getElementById("id_contenu").value;
-             var foo_tags = document.getElementById("id_tag").value;
-             var foo_entreprise = document.getElementById("id_entreprise").value;
-             var foo_typeentreprise = document.getElementById("id_typeentreprise").value;
+             var foo2 = document.getElementById("id_annonce").value;
+             var foo_datepublication2 = document.getElementById("id_datepublication").value;
+             var foo_contenu2 = document.getElementById("id_contenu").value;
+             var foo_tags2 = document.getElementById("id_tag").value;
+             var foo_entreprise2 = document.getElementById("id_entreprise").value;
+             var foo_typecontrat2 = document.getElementById("id_typecontrat").value;
 
              try{
-              db.collection("emplois").updateOne({guid : un_guid}, {$set: {intitule: foo, datepublication: foo_datepublication, contenu : foo_contenu, tags : foo_tags, entreprise : foo_entreprise,typeentreprise : foo_typeentreprise}});
+
+             if(foo2==""||foo_datepublication2==""||foo_contenu2==""||foo_tags2==""||foo_entreprise2==""||foo_typecontrat2==""||foo2==null||foo_datepublication2==null||foo_contenu2==null||foo_tags2==null||foo_entreprise2==null||foo_typecontrat2==null){
+             	alert("Veuillez remplir tous les champs")
+             }else{
+
+              db.collection("emplois").updateOne({guid : un_guid}, {$set: {intitule: foo2, datepublication: foo_datepublication2, contenu : foo_contenu2, tags : foo_tags2, entreprise : foo_entreprise2,typecontrat : foo_typecontrat2}});
+              	}
+
              }
              catch (e){
               console.log(e);
@@ -115,24 +125,26 @@
         <input id="new_contenu" placeholder="Contenu">
         <input id="new_tag" placeholder="Tag"><br><br>
         <select id="new_entreprise" name="entreprise">
-    		<option value="IBM">IBM</option>
-   			<option value="Apple">Apple</option>
-    		<option value="Microsoft">Microsoft</option>
-    		<option value="Capgemini">Capgemini</option>
-    		<option value="Orange">Orange</option>
-    		<option value="SFR">SFR</option>
-    		<option value="Bouygues Telecom">Bouygues Telecom</option>
-    		<option value="Free">Free</option>
-    		<option value="SFR">SFR</option>    		
+        	<option value="" disabled selected>Sélectionner l'entreprise</option>           	
+    		<option>IBM</option>
+   			<option>Apple</option>
+    		<option>Microsoft</option>
+    		<option>Capgemini</option>
+    		<option>Orange</option>
+    		<option>SFR</option>
+    		<option>Bouygues Telecom</option>
+    		<option>Free</option>
+    		<option>SFR</option>    		
   		</select>
 
-        <select id="new_typeentreprise" name="typeentreprise">
-    		<option value="Stage">Stage</option>
-   			<option value="Apprentissage/Alternance">Apprentissage/Alternance</option>
-    		<option value="CDD">CDD</option>
-    		<option value="CDI">CDI</option>    		
-    		<option value="Freelance/Indépendant">Freelance/Indépendant</option>
-    		<option value="Intérim">Intérim</option>    		
+        <select id="new_typecontrat" name="typecontrat">
+        	<option value="" disabled selected>Sélectionner le type de contrat</option>        	
+    		<option>Stage</option>
+   			<option>Apprentissage/Alternance</option>
+    		<option>CDD</option>
+    		<option>CDI</option>    		
+    		<option>Freelance/Indépendant</option>
+    		<option>Intérim</option>    		
   		</select><br><br>
 
         <input type="submit" onClick="addAdvertisement()"><br><br>
@@ -146,24 +158,26 @@
             <input id="id_contenu" placeholder="Contenu">
             <input id="id_tag" placeholder="Tag">
         <select id="id_entreprise" name="entreprise">
-    		<option value="IBM">IBM</option>
-   			<option value="Apple">Apple</option>
-    		<option value="Microsoft">Microsoft</option>
-    		<option value="Capgemini">Capgemini</option>
-    		<option value="Orange">Orange</option>
-    		<option value="SFR">SFR</option>
-    		<option value="Bouygues Telecom">Bouygues Telecom</option>
-    		<option value="Free">Free</option>
-    		<option value="SFR">SFR</option>    		
+        	<option value="" disabled selected>Sélectionner l'entreprise</option>        	
+    		<option>IBM</option>
+   			<option>Apple</option>
+    		<option>Microsoft</option>
+    		<option>Capgemini</option>
+    		<option>Orange</option>
+    		<option>SFR</option>
+    		<option>Bouygues Telecom</option>
+    		<option>Free</option>
+    		<option>SFR</option>    		
   		</select>
 
-        <select id="id_typeentreprise" name="typeentreprise">
-    		<option value="Stage">Stage</option>
-   			<option value="Apprentissage/Alternance">Apprentissage/Alternance</option>
-    		<option value="CDD">CDD</option>
-    		<option value="CDI">CDI</option>    		
-    		<option value="Freelance/Indépendant">Freelance/Indépendant</option>
-    		<option value="Intérim">Intérim</option>    		
+        <select id="id_typecontrat" name="typecontrat">
+        	<option value="" disabled selected>Sélectionner le type de contrat</option>
+    		<option>Stage</option>
+   			<option>Apprentissage/Alternance</option>
+    		<option>CDD</option>
+    		<option>CDI</option>    		
+    		<option>Freelance/Indépendant</option>
+    		<option>Intérim</option>    		
   		</select>                       
             <button type="submit" onClick="hide()">Masquer</button>
             <input type="submit" onClick="updateAdvertisement()">
