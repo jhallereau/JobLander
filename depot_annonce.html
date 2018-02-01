@@ -111,6 +111,19 @@
              displayAdvertisementOnLoad();
           }
 
+         function searchByTag() {
+             var foo_tagtoSearch = document.getElementById("search_tag").value;
+             //document.getElementById("nb_annoncesPerTag").value = db.collection("emplois").count({tags: foo_tagtoSearch});
+             db.collection("emplois").count({tags: foo_tagtoSearch}).then(function(value) {
+				document.getElementById("nb_annoncesPerTag").value=value
+             })    
+         }
+
+         function totalAnnonces() {
+             db.collection("emplois").count().then(function(value) {
+				document.getElementById("total_annonces").value=value
+             })    
+         }
 
          </script>
 </head>
@@ -125,7 +138,7 @@
         <input id="new_contenu" placeholder="Contenu">
         <input id="new_tag" placeholder="Tag"><br><br>
         <select id="new_entreprise" name="entreprise">
-        	<option value="" disabled selected>Sélectionner l'entreprise</option>           	
+        	<option value="" disabled selected>Sélectionner l'entreprise</option>       
     		<option>IBM</option>
    			<option>Apple</option>
     		<option>Microsoft</option>
@@ -181,7 +194,19 @@
   		</select>                       
             <button type="submit" onClick="hide()">Masquer</button>
             <input type="submit" onClick="updateAdvertisement()">
- </div>
+ 		</div><br>
+
+ 		<div id="stats_zone">
+            <h3>Statistiques</h3>
+            Saisir un tag :
+ 			<input id="search_tag" placeholder="Tag à rechercher"><input type="submit" onClick="searchByTag()"><br>
+ 			Nombre d'annonces pour ce tag : 
+ 			<input id="nb_annoncesPerTag"><br><br>
+ 			Calculer le nombre total d'annonces :
+ 			<input type="submit" onClick="totalAnnonces()"><br>
+ 			<input id="total_annonces">
+
+ 		</div>
     <!-- <table>
           <th>Intitulé</th>
         <tr>
