@@ -48,3 +48,6 @@ Dans notre exemple, nous utiliserons la partie Annonce, le principe étant le m�
 - Cliquer sur le bouton "Supprimer" de la ligne concernée
 - Si la ligne n'est pas directement supprimée de la liste, rafraîchissez la page
 - Vérifier la bonne suppression de votre ligne
+
+# Caractéristiques techniques
+- Mise en place d'un contrôle de la saisie pour les ajouts et suppressions de données
