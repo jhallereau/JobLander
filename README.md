@@ -51,3 +51,8 @@ Dans notre exemple, nous utiliserons la partie Annonce, le principe étant le m�
 
 # Caractéristiques techniques
 - Mise en place d'un contrôle de la saisie pour les ajouts et suppressions de données
+- Mise en place de la partie statistiques dans le annonces, on peut recherche le nombre d'annonces concernées par un tag précis ou bien le nombre total d'annonces publiées
+- Mise en place de la confirmation de suppression de données
+- Conversion de plusieurs champs de type texte vers numérique
+- Ajouts des points + et - dans la partie avis
+- Mise à jour du template
