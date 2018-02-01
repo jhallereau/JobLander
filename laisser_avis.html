@@ -60,7 +60,6 @@
         }
 
          function addView() {
-             alert("ajout");
              var foo_note = document.getElementById("note").value;
              var foo_titre = document.getElementById("titre").value;
              var foo_commentaire = document.getElementById("commentaire").value;
@@ -84,16 +83,12 @@
          }
 
          function delView(guid){
-
-          if (confirm("Etes vous sûre de vouloir détruire cet avis ? ")) {
             try {
                 db.collection("avis").deleteOne( {guid : guid} );
              } 
              catch (e) {
                 console.log(e);
              }
-             location.reload();
-          } 
           }
 
           function hide(){
@@ -117,8 +112,8 @@
                 alert("Veuillez remplir les champs requis");
             }
             else{
-              db.collection("avis").updateOne({guid : un_guid}, {$set: {note: foo_note_update, titre: foo_titre_update, commentaire: foo_commentaire_update, point_p: foo_point_positif_update, point_n: foo_point_negatif_update, date: foo_date_update}});
-              foo_note_update.value = "";
+             db.collection("avis").updateOne({guid : un_guid}, {$set: {note: foo_note_update, titre: foo_titre_update, commentaire: foo_commentaire_update, point_p: foo_point_positif_update, point_n: foo_point_negatif_update, date: foo_date_update}});
+             foo_note_update.value = "";
              foo_titre_update.value = "";
              foo_commentaire_update.value = "";
              foo_point_positif_update.value = "";
