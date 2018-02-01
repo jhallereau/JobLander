@@ -6,6 +6,7 @@
     <title>JobLander - Entreprises</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+    <link rel="stylesheet" href="css/style.css">
     <script src="https://s3.amazonaws.com/stitch-sdks/js/library/v3/stable/stitch.min.js"></script>
     <script>
         var enterpriseNameToUpdate;
@@ -37,7 +38,7 @@
 
          function displayEnterprises() {
              db.collection('entreprises').find({}).limit(1000).execute().then(docs => {
-                 var html = docs.map(c => "<div>" + c.nom +" | "+ c.adresse +" | "+ c.siret +" | "+ c.gps+"<button type=\"submit\" id=\"enterprise_del\" onClick=\"delEnterprise('"+c.guid+"')\" value="+c.guid+">Supprimer</button><button type=\"submit\" id=\"enterprise_update\" onClick=\"preupdateEnterprise('"+c.guid+"')\" value="+c.siret+">Mettre à jour</button></div>").join("");
+                 var html = docs.map(c => "<div>" + c.nom +" | "+ c.adresse +" | "+ c.siret +" | "+ c.gps+"<button class=\"btn btn-primary\" type=\"submit\" id=\"enterprise_del\"  onClick=\"delEnterprise('"+c.guid+"')\" value="+c.guid+">Supprimer</button>  <button type=\"submit\" class=\"btn btn-primary\" id=\"enterprise_update\" onClick=\"preupdateEnterprise('"+c.guid+"')\" value="+c.siret+">Mettre à jour</button></div>").join("");
                  document.getElementById("enterprise").innerHTML = html;
                 console.log(html);
              });
@@ -66,13 +67,12 @@
          }
 
          function delEnterprise(guid){
-
             try {
-                db.collection("entreprises").deleteOne( {guid : guid} );
+              db.collection("entreprises").deleteOne( {guid : guid} );
              } 
-             catch (e) {
-                console.log(e);
-             }
+            catch (e) {
+              console.log(e);
+            }
           }
 
           function hide(){
@@ -90,13 +90,23 @@
              var foo_adress_up = document.getElementById("addresse_up").value;
              var foo_gps_up = document.getElementById("gps_up").value;
 
-             try{
+             if(foo_up == null || foo_up == "" || foo_siret_up == null || foo_siret_up == "" || foo_adress_up == null || foo_adress_up == "" || foo_gps_up == null || foo_gps_up == ""){
+                alert("Veuillez remplir les champs requis");
+            }
+            else{
               db.collection("entreprises").updateOne({guid : un_guid}, {$set: {nom: foo_up, siret: foo_siret_up, adresse : foo_adress_up,gps : foo_gps_up}});
-             }
-             catch (e){
-              console.log(e);
-             }
-             displayEnterprisesOnLoad();
+              document.getElementById("up_enterprise").style.visibility = "hidden";
+              foo_up.value = "";
+              foo_siret_up.value = "";
+              foo_adress_up.value = "";
+              foo_gps_up.value = "";
+              displayEnterprisesOnLoad();
+
+              document.getElementById("name_up").value = "";
+              document.getElementById("addresse_up").value = "";
+              document.getElementById("siret_up").value = "";
+              document.getElementById("gps_up").value = "";
+            }
           }
          
          </script>
@@ -104,34 +114,33 @@
 <body onload="displayEnterprisesOnLoad()">
         <h1>JobLander</h1>  
         <h2>Entreprises</h2>
-        <br/>
             <div id="enterprise"></div>
             <hr>
             Ajouter une entreprise : 
-            <input id="name" placeholder="Nom de l'entreprise">
-            <input id="addresse" placeholder="Adresse">
-            <input id="siret" placeholder="SIRET">
-            <input id="gps" placeholder="Position GPS">
-            <input type="submit" onClick="addEnterprises()">
+            <input id="name" class="form-control" placeholder="Nom de l'entreprise">
+            <input id="addresse" class="form-control" placeholder="Adresse">
+            <input id="siret" class="form-control" placeholder="SIRET">
+            <input id="gps" class="form-control" placeholder="Position GPS">
+            <input type="submit" class="btn btn-primary" onClick="addEnterprises()">
 
 <div id="up_enterprise" style="visibility : hidden">
             <h3>Mise à jour de l'entreprise : </h3>
-            <input id="name_up" placeholder="Nom de l'entreprise">
-            <input id="addresse_up" placeholder="Adresse">
-            <input id="siret_up" type="number" placeholder="SIRET">
-            <input id="gps_up" placeholder="Position GPS">
-            <button type="submit" onClick="hide()">Masquer</button>
-            <input type="submit" onClick="updateEnterprise()">
+            <input id="name_up" class="form-control" placeholder="Nom de l'entreprise">
+            <input id="addresse_up" class="form-control" placeholder="Adresse">
+            <input id="siret_up" class="form-control" type="number" placeholder="SIRET">
+            <input id="gps_up" class="form-control" placeholder="Position GPS">
+            <button type="submit" class="btn btn-primary" onClick="hide()">Masquer</button>
+            <input type="submit" class="btn btn-primary" onClick="updateEnterprise()">
  </div>
       <br>
       <form action="laisser_avis.html" method="get">
-        <input type="submit" value="< Avis" name="Submit" id="frm1_submit" />
+        <input type="submit" value="Avis" class="btn btn-primary" name="Submit" id="frm1_submit" />
     </form>
       <form action="index.html" method="get">
-        <input type="submit" value="Accueil" name="Submit" id="frm2_submit" />
+        <input type="submit" value="Accueil" class="btn btn-primary"  name="Submit" id="frm2_submit" />
     </form>
       <form action="depot_annonce.html" method="get">
-        <input type="submit" value="Annonces >" name="Submit" id="frm3_submit" />
+        <input type="submit" value="Annonces" class="btn btn-primary" name="Submit" id="frm3_submit" />
     </form>
 </body>
 </html>
